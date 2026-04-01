@@ -1,0 +1,35 @@
+name: Daily Property Search
+
+on:
+  schedule:
+    - cron: '0 8,18 * * *' # 8:00 i 18:00 UTC
+  workflow_dispatch: # Możliwość ręcznego uruchomienia
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Agent
+        run: python agent.py
+        env:
+          GWS_TOKEN: ${{ secrets.GWS_TOKEN }} # Wymaga konfiguracji sekretów dla e-mail
+
+      - name: Commit and push results
+        run: |
+          git config --global user.name "Property Agent Bot"
+          git config --global user.email "bot@github.com"
+          git add results.json report.txt
+          git commit -m "Update property results: $(date)" || echo "No changes to commit"
+          git push
