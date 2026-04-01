@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  property-agent:
+    build: .
+    container_name: property-search-agent
+    environment:
+      - GWS_TOKEN=${GWS_TOKEN}
+      - EMAILS=${EMAILS}
+    volumes:
+      - ./results.json:/app/results.json
+      - ./report.txt:/app/report.txt
+    command: cron -f
